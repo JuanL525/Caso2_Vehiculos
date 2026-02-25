@@ -8,31 +8,29 @@ import usuarioRoutes from './routes/usuarioRoutes.js';
 import clienteRoutes from './routes/clienteRoutes.js'
 import reservaRoutes from './routes/reservaRoutes.js'
 
-const app = express();
-
-const whitelist = [ 'http://127.0.0.1:5501', 'http://localhost:5501', 'http://127.0.0.1:4000', 'http://localhost:4000' ];
-
-const corsOptions = {
-    origin: function (origin, callback) {
-    if (!origin || whitelist.includes(origin)) {
-        callback(null, true);
-    } else {
-        callback(new Error('No permitido por CORS'));
-    }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-app.use(cors(corsOptions));
-
-app.use(express.json());
-
+// 1. Cargar variables de entorno al principio
 dotenv.config();
 
+const app = express();
+
+// 2. CORS Abierto para evitar bloqueos con cualquier Frontend
+app.use(cors({
+  origin: "*",
+  credentials: false
+}));
+
+// 3. Habilitar lectura de JSON
+app.use(express.json());
+
+// 4. Conectar a la Base de Datos
 conectarDB();
 
-//Rutas
+// 5. Ruta principal de bienvenida (opcional pero recomendada)
+app.get('/', (req, res) => {
+    res.send('Bienvenido a la API del Sistema de Alquiler de Vehículos 🚗');
+});
+
+// 6. Rutas de la API
 app.use('/api/vehiculos', vehiculoRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/clientes', clienteRoutes);
@@ -43,5 +41,3 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>{
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
-
-
